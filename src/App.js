@@ -1,24 +1,66 @@
-import logo from './logo.svg';
+import {Search,MapPin,Wind} from 'react-feather';
 import './App.css';
+import getWeather from './Component/api';
+import { useState } from 'react';
+import dateFormat from 'dateformat';
 
 function App() {
+  const [city,setCity]=useState("");
+  const[weather,setWeather]=useState({});
+
+   const getWeatherCity=async()=>{
+    const weatherData=await getWeather(city);
+    setWeather(weatherData);
+    setCity(""); 
+   }
+
+   const renderDate=()=>{
+    let now=new Date();
+    return dateFormat(now,'ddd,mmm dS,h:MM TT');
+   }
+
+
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <div className="app">
+      <h1>Weather App</h1>
+      <div className="input-wrapper">
+        <input type="text" value={city} onChange={(e)=>setCity(e.target.value)}
+        placeholder='Enter City'/>
+        <button onClick={()=>getWeatherCity()}><Search></Search> </button>
+      </div>
+
+
+      {weather && weather.weather&& 
+      <div className='content'>
+        <div className='location d-flex'>
+          <MapPin></MapPin>
+          <h2>{weather.name}<span>{weather.sys.country}</span></h2>
+          
+        </div>
+        <p className='datetext'>{renderDate } </p>
+        <div className='weatherdesc d-flex flex-c '>
+          <img src={`https://openweathermap.org/img/wn/${weather.weather[0].icon }10d@2x.png`} alt=''/>
+          <h3> {weather.weather[0].description} </h3>
+
+        </div>
+        <div className='tempstats d-flex flex-c'>
+          <h1>{weather.main.temp }<span>&deg;C</span></h1>
+          <h3>Feels Like {weather.main.feels_like} <span>&deg;C</span></h3>
+        </div>
+        <div className="windstats d-flex">
+          <Wind></Wind>
+          <h3>Wind is {weather.wind.speed} Knots in {weather.main.temp}&deg; </h3>
+        </div>
+        </div>
+        } 
+{!weather.weather&&
+        <div className='content'>
+          <h4>No Data Found!</h4>
+
+        </div>}
+      </div>
+   
   );
 }
 
